@@ -1,5 +1,5 @@
 import z from 'zod';
-import { EnvSchema } from './env.schema';
+import { EnvSchema } from './env.schema.js';
 
 export const environment: Readonly<z.infer<typeof EnvSchema>> = z.parse(
   EnvSchema,

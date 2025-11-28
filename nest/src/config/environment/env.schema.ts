@@ -1,5 +1,5 @@
 import z from 'zod';
-import { LOG_LEVEL_MAP } from '../logger/log-levels';
+import { LOG_LEVEL_MAP } from '../logger/log-levels.js';
 import 'dotenv/config';
 
 export const EnvSchema = z

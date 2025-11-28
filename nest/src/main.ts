@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
-import { environment } from './config/environment/environment';
+import { environment } from './config/environment/environment.js';
 
 const validationPipe = new ValidationPipe({
   whitelist: true,
