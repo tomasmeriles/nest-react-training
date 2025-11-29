@@ -14,6 +14,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(validationPipe);
 
+  app.setGlobalPrefix('/api');
+
   await app.listen(environment.PORT);
 }
 void bootstrap();
