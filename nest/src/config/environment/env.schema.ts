@@ -4,7 +4,7 @@ import 'dotenv/config';
 
 export const EnvSchema = z
   .object({
-    NODE_ENV: z.enum(['development', 'production']).default('development'),
+    NODE_ENV: z.enum(['development', 'production']),
 
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 
@@ -12,7 +12,9 @@ export const EnvSchema = z
       .enum(['fatal', 'error', 'warn', 'log', 'debug', 'verbose'])
       .default('log'),
 
-    JWT_SECRET: z.string().nonempty(),
+    JWT_ACCESS_SECRET: z.string().nonempty(),
+
+    JWT_REFRESH_SECRET: z.string().nonempty(),
   })
   .transform((cfg) => ({
     ...cfg,

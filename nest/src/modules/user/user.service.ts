@@ -11,5 +11,7 @@ export class UserService {
     return this.userRepository.findUnique(data);
   }
 
-  async create(data: CreateUserInput) {}
+  async create(data: CreateUserInput) {
+    return this.userRepository.create(data);
+  }
 }

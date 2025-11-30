@@ -26,18 +26,24 @@ export class UserRepository implements CRUDRepository {
   }
 
   async create(data: UserCreateInput) {
-    return this.prisma.user.create({ data });
+    return await this.prisma.user.create({ data });
   }
 
   async update(id: number, data: UserUpdateInput) {
-    return this.prisma.user.update({ where: { id }, data });
+    return await this.prisma.user.update({ where: { id }, data });
   }
 
   async delete(id: number) {
-    return this.prisma.user.update({ where: { id }, data: { active: false } });
+    return await this.prisma.user.update({
+      where: { id },
+      data: { active: false },
+    });
   }
 
   async reactivate(id: number) {
-    return this.prisma.user.update({ where: { id }, data: { active: true } });
+    return await this.prisma.user.update({
+      where: { id },
+      data: { active: true },
+    });
   }
 }
