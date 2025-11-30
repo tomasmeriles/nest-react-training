@@ -10,6 +10,7 @@ import { environment } from '../../config/environment/environment.js';
 import { AuthenticatedUser } from './interface/authenticated-user.interface.js';
 import ms from 'ms';
 import { LoginDto } from './dto/login.dto.js';
+import { DecodedRefreshToken } from './interface/decoded-refresh-token.interface.js';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +29,13 @@ export class AuthService {
     name: string;
     email: string;
   }): AuthenticatedUser {
-    const accessToken = this.getAccessToken({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
+    const jwtPayload = Builder<JwtPayload>()
+      .sub(user.id)
+      .email(user.email)
+      .name(user.name)
+      .build();
+
+    const accessToken = this.getAccessToken(jwtPayload);
 
     return {
       id: user.id,
@@ -60,10 +63,8 @@ export class AuthService {
   }
 
   async login(data: LoginDto) {
-    this.logger.debug(data);
-
     const user = await this.userService.findUnique({
-      where: { email: data.email },
+      where: { email: data.email, active: true },
     });
 
     if (!user) throw new UnauthorizedException('Invalid email or password');
@@ -76,9 +77,39 @@ export class AuthService {
     return this.buildAndReturnAuthenticatedUser(user);
   }
 
+  async refreshTokens(refreshToken: string | undefined) {
+    if (!refreshToken) throw new UnauthorizedException('Empty token');
+
+    let decoded: DecodedRefreshToken;
+
+    try {
+      decoded = jwt.verify(
+        refreshToken,
+        environment.JWT_REFRESH_SECRET,
+      ) as DecodedRefreshToken;
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError)
+        throw new UnauthorizedException('Expired token');
+      else if (error instanceof jwt.JsonWebTokenError)
+        throw new UnauthorizedException('Invalid token');
+      else throw error;
+    }
+
+    const user = await this.userService.findUnique({
+      where: { id: decoded.sub, active: true },
+    });
+
+    if (!user)
+      throw new UnauthorizedException(
+        'User does not exists or it was eliminated',
+      );
+
+    return this.buildAndReturnAuthenticatedUser(user);
+  }
+
   getAccessToken(payload: JwtPayload): string {
     const accessTokenPayload = {
-      sub: payload.id,
+      sub: payload.sub,
       email: payload.email,
       name: payload.name,
     };

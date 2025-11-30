@@ -3,6 +3,7 @@ import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
 import { environment } from './config/environment/environment.js';
 import { useContainer } from 'class-validator';
+import cookieParser from 'cookie-parser';
 
 const validationPipe = new ValidationPipe({
   whitelist: true,
@@ -12,6 +13,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: environment.LOG_LEVEL,
   });
+
+  app.use(cookieParser());
 
   app.useGlobalPipes(validationPipe);
 
