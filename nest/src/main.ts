@@ -14,6 +14,8 @@ async function bootstrap() {
     logger: environment.LOG_LEVEL,
   });
 
+  app.enableCors();
+
   app.use(cookieParser());
 
   app.useGlobalPipes(validationPipe);
