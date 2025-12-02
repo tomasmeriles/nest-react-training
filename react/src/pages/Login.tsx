@@ -8,8 +8,11 @@ import { Card } from "../components/ui/card";
 import { Typography } from "../components/custom/Typography";
 import { useMutation } from "@tanstack/react-query"
 import type { LoginUser } from "@/interfaces/login-user.interface";
-import axios from "axios"
-import { useNavigate } from "react-router-dom";
+import axios, { AxiosError } from "axios"
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
+import { X } from "lucide-react";
 
 function sendLogin(credentials: LoginUser) {
   const API_BASE_URL = import.meta.env.VITE_API_URL
@@ -29,9 +32,24 @@ export function Login() {
     resolver: zodResolver(formSchema)
   })
 
-  const { mutate, error, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: sendLogin,
-    onSuccess: () => router("/home")
+    onSuccess: () => router("/home"),
+    onError: (error) => {
+      let message = "An error occurred";
+
+      if (error instanceof AxiosError) {
+        message = error.response?.data?.message ?? message;
+      }
+
+      const id = toast("Error", {
+        description: message,
+        action: {
+          label: <X className="h-4 w-4" />,
+          onClick: () => toast.dismiss(id),
+        },
+      });
+    }
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -63,7 +81,7 @@ export function Login() {
             control={form.control}
             render={({field}) => (
                 <FormItem>
-                  <FormLabel>Contraseña</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Your password" value={form.watch("password") || ""}/>
                   </FormControl>
@@ -72,9 +90,16 @@ export function Login() {
               )}
             />
     
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Spinner className="mr-2 h-4 w-4" />}
+              Submit
+            </Button>
           </form>
         </Form>
+
+        <Typography.P className="text-center">
+          ¿You don't have an account? <Link to="/sign-up" className="text-blue-500">Sign up</Link>
+        </Typography.P>
       </Card>
     </div>
 

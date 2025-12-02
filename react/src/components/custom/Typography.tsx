@@ -8,4 +8,12 @@ export const Typography = {
       </h1>
     )
   },
+
+  P({ children, className }: { children: ReactNode, className?: string }) {
+    return (
+      <p className={`leading-7 not-first:mt-6 ${className}`}>
+        {children}
+      </p>
+    )
+  },
 }
